@@ -1,0 +1,151 @@
+-- Variables and Initial Setup
+local Player = game.Players.LocalPlayer
+local CoreGui = game.CoreGui
+local AutofarmActive = false
+local FPSBoostEnabled = false
+local ResetBagActive = false
+
+-- Anti AFK Setup
+local function DisableAFK()
+    local GC = getconnections or get_signal_cons
+    if GC then
+        for _, v in pairs(GC(Player.Idled)) do
+            if v.Disable then
+                v.Disable(v)
+            elseif v.Disconnect then
+                v.Disconnect(v)
+            end
+        end
+    end
+end
+
+DisableAFK()
+
+-- GUI Creation
+local ScreenGui = Instance.new("ScreenGui", CoreGui)
+local MainFrame = Instance.new("Frame")
+local UICorner = Instance.new("UICorner")
+local TitleLabel = Instance.new("TextLabel")
+local DividerLine = Instance.new("Frame")
+local BulbText = Instance.new("TextLabel")
+local CreditText = Instance.new("TextLabel")
+
+-- Button Definitions
+local StartAutofarmButton = Instance.new("TextButton")
+local ImproveFPSButton = Instance.new("TextButton")
+local AntiAFKButton = Instance.new("TextButton")
+local ResetBagButton = Instance.new("TextButton")
+
+-- GUI Setup
+ScreenGui.Name = "MM2AutofarmGUI"
+ScreenGui.ResetOnSpawn = false
+
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+MainFrame.BackgroundTransparency = 0.15
+MainFrame.Size = UDim2.new(0, 300, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+MainFrame.BorderSizePixel = 0
+MainFrame.Draggable = true
+
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = MainFrame
+
+local function CreateButton(text, position, parent)
+    local button = Instance.new("TextButton")
+    button.Text = text
+    button.Parent = parent
+    button.Position = position
+    button.Size = UDim2.new(0, 140, 0, 60)
+    button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Font = Enum.Font.SourceSansBold
+    button.TextScaled = true
+    button.BorderSizePixel = 0
+    local corner = Instance.new("UICorner", button)
+    corner.CornerRadius = UDim.new(0, 8)
+    return button
+end
+
+-- Title Label
+TitleLabel.Parent = MainFrame
+TitleLabel.Text = "MM2 Autofarm"
+TitleLabel.Size = UDim2.new(1, 0, 0, 40)
+TitleLabel.TextColor3 = Color3.new(1, 1, 1)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Font = Enum.Font.SourceSansBold
+TitleLabel.TextScaled = true
+
+-- Divider Line
+DividerLine.Parent = MainFrame
+DividerLine.Size = UDim2.new(1, -10, 0, 1)
+DividerLine.Position = UDim2.new(0, 5, 0, 50)
+DividerLine.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+
+-- Info Labels
+BulbText.Parent = MainFrame
+BulbText.Text = "💡 Use The Given Functions To Start Auto Farm"
+BulbText.TextColor3 = Color3.fromRGB(255, 215, 0)
+BulbText.Size = UDim2.new(1, -10, 0, 20)
+BulbText.Position = UDim2.new(0, 5, 1, -60)
+BulbText.BackgroundTransparency = 1
+BulbText.Font = Enum.Font.SourceSansBold
+BulbText.TextScaled = true
+
+CreditText.Parent = MainFrame
+CreditText.Text = "Created By CJ-Scripts"
+CreditText.TextColor3 = Color3.fromRGB(0, 255, 255)
+CreditText.Size = UDim2.new(1, -10, 0, 20)
+CreditText.Position = UDim2.new(0, 5, 1, -30)
+CreditText.BackgroundTransparency = 1
+CreditText.Font = Enum.Font.SourceSansBold
+CreditText.TextScaled = true
+
+-- Button Creation
+StartAutofarmButton = CreateButton("Start AutoFarm", UDim2.new(0.05, 0, 0.2, 0), MainFrame)
+ImproveFPSButton = CreateButton("Improve FPS", UDim2.new(0.55, 0, 0.2, 0), MainFrame)
+AntiAFKButton = CreateButton("Anti AFK", UDim2.new(0.05, 0, 0.5, 0), MainFrame)
+ResetBagButton = CreateButton("Reset Bag", UDim2.new(0.55, 0, 0.5, 0), MainFrame)
+
+-- Functions for each button
+local function StartAutofarm()
+    AutofarmActive = not AutofarmActive
+    StartAutofarmButton.BackgroundColor3 = AutofarmActive and Color3.new(0, 1, 0) or Color3.fromRGB(30, 30, 30)
+    while AutofarmActive do
+        -- Place AutoFarm Logic Here
+        for _, v in pairs(game.Workspace:GetChildren()) do
+            if v.Name == "LootBag" then
+                v.CFrame = Player.Character.HumanoidRootPart.CFrame
+            end
+        end
+        task.wait(0.5)
+    end
+end
+
+local function ToggleFPSBoost()
+    FPSBoostEnabled = not FPSBoostEnabled
+    ImproveFPSButton.BackgroundColor3 = FPSBoostEnabled and Color3.new(0, 1, 0) or Color3.fromRGB(30, 30, 30)
+    setfpscap(FPSBoostEnabled and 10 or 60)
+end
+
+local function ResetBag()
+    ResetBagActive = not ResetBagActive
+    ResetBagButton.BackgroundColor3 = ResetBagActive and Color3.new(0, 1, 0) or Color3.fromRGB(30, 30, 30)
+    for _, v in pairs(game.Workspace:GetChildren()) do
+        if v.Name == "LootBag" then
+            v:Destroy()
+        end
+    end
+end
+
+local function ToggleAntiAFK()
+    DisableAFK()
+    AntiAFKButton.BackgroundColor3 = Color3.new(0, 1, 0)
+end
+
+-- Button Event Connections
+StartAutofarmButton.MouseButton1Click:Connect(StartAutofarm)
+ImproveFPSButton.MouseButton1Click:Connect(ToggleFPSBoost)
+AntiAFKButton.MouseButton1Click:Connect(ToggleAntiAFK)
+ResetBagButton.MouseButton1Click:Connect(ResetBag)
